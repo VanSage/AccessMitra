@@ -1,0 +1,13 @@
+{
+  "expo": {
+    "name": "AccessMitra",
+    "slug": "accessmitra",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "userInterfaceStyle": "light",
+    "splash": { "backgroundColor": "#152343" },
+    "ios": { "supportsTablet": true },
+    "android": { "package": "org.accessmitra.app" },
+    "web": { "bundler": "metro" }
+  }
+}
