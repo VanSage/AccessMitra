@@ -1,0 +1,738 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>AccessMitra — Prototype</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --navy:#152343;
+    --navy-2:#1E3560;
+    --teal:#0E8F72;
+    --teal-2:#0B7A61;
+    --amber:#E8A33D;
+    --amber-2:#C97F1B;
+    --bg:#EEF1F4;
+    --panel:#FFFFFF;
+    --ink:#12161C;
+    --sub:#5B6572;
+    --line:#DFE3E8;
+  }
+  html.hc{
+    --bg:#000000;
+    --panel:#0B0B0B;
+    --ink:#FFFFFF;
+    --sub:#F2F2F2;
+    --line:#FFFFFF;
+    --navy:#5EA0FF;
+    --navy-2:#7AB2FF;
+    --teal:#3DDC97;
+    --teal-2:#3DDC97;
+    --amber:#FFC94A;
+    --amber-2:#FFC94A;
+  }
+  *{ -webkit-tap-highlight-color: transparent; }
+  body{
+    font-family:'Inter',ui-sans-serif,system-ui,sans-serif;
+    background:var(--bg);
+    color:var(--ink);
+  }
+  .font-display{ font-family:'Space Grotesk',ui-sans-serif,system-ui,sans-serif; }
+  .bg-app{ background:var(--bg); }
+  .bg-panel{ background:var(--panel); }
+  .text-ink{ color:var(--ink); }
+  .text-sub{ color:var(--sub); }
+  .border-line{ border-color:var(--line); }
+  .bg-navy{ background:var(--navy); }
+  .text-navy{ color:var(--navy); }
+  .bg-teal{ background:var(--teal); }
+  .text-teal{ color:var(--teal); }
+  .bg-amber{ background:var(--amber); }
+  .text-amber{ color:var(--amber); }
+
+  ::selection{ background: var(--teal); color:white; }
+
+  a, button, [role="button"], input, textarea, select{
+    outline-offset:2px;
+  }
+  a:focus-visible, button:focus-visible, [role="button"]:focus-visible, input:focus-visible, textarea:focus-visible, .focusable:focus-visible{
+    outline: 3px solid var(--amber);
+    outline-offset: 2px;
+    border-radius: 6px;
+  }
+
+  @media (prefers-reduced-motion: no-preference){
+    .anim-in{ animation: rise .32s cubic-bezier(.2,.8,.2,1) both; }
+    .anim-pop{ animation: pop .28s cubic-bezier(.2,.8,.2,1) both; }
+    .anim-sheet{ animation: sheet .3s cubic-bezier(.2,.8,.2,1) both; }
+    .pulse-dot{ animation: pulse 1.8s ease-in-out infinite; }
+    .stamp{ animation: stampIn .5s cubic-bezier(.34,1.56,.64,1) both; }
+  }
+  @keyframes rise{ from{opacity:0; transform:translateY(10px)} to{opacity:1; transform:translateY(0)} }
+  @keyframes pop{ from{opacity:0; transform:scale(.94)} to{opacity:1; transform:scale(1)} }
+  @keyframes sheet{ from{transform:translateY(100%)} to{transform:translateY(0)} }
+  @keyframes pulse{ 0%,100%{ box-shadow:0 0 0 0 rgba(14,143,114,.45)} 50%{ box-shadow:0 0 0 8px rgba(14,143,114,0)} }
+  @keyframes stampIn{ 0%{opacity:0; transform:scale(1.7) rotate(-8deg)} 60%{opacity:1; transform:scale(.94) rotate(-8deg)} 100%{opacity:1; transform:scale(1) rotate(-8deg)} }
+
+  .phone-shell{
+    box-shadow: 0 30px 60px -20px rgba(21,35,67,.35), 0 0 0 10px #0B1220;
+  }
+  .scrollbar-none::-webkit-scrollbar{ display:none; }
+  .scrollbar-none{ -ms-overflow-style:none; scrollbar-width:none; }
+
+  .ribbon-seg{ height:8px; border-radius:999px; }
+  .step-icon{ width:38px; height:38px; border-radius:999px; display:flex; align-items:center; justify-content:center; flex:none; }
+</style>
+</head>
+<body class="bg-app min-h-screen">
+
+<!-- =========== PAGE CHROME (outside phone) =========== -->
+<div class="min-h-screen w-full flex flex-col items-center py-8 px-4" style="background: radial-gradient(1100px 500px at 50% -10%, #1E3560 0%, #EEF1F4 55%);">
+
+  <header class="w-full max-w-5xl mb-6 px-1">
+    <div class="flex items-center justify-between gap-4 flex-wrap">
+      <div class="flex items-center gap-3">
+        <div class="w-10 h-10 rounded-xl bg-navy flex items-center justify-center font-display font-bold text-white text-lg">A</div>
+        <div>
+          <p class="font-display font-bold text-white text-lg leading-none">AccessMitra</p>
+          <p class="text-white/70 text-xs mt-0.5">Interactive prototype &middot; Stage 2 demo</p>
+        </div>
+      </div>
+      <p class="text-white/60 text-xs max-w-xs hidden md:block">Every screen below is functional — search, filter, navigate, report a barrier, and watch community verification happen live.</p>
+    </div>
+  </header>
+
+  <div class="w-full max-w-5xl grid md:grid-cols-[380px_1fr] gap-8 items-start">
+
+    <!-- PHONE FRAME -->
+    <div class="mx-auto">
+      <div id="phone" class="phone-shell relative w-[360px] h-[740px] rounded-[2.4rem] bg-navy p-2.5">
+        <div class="relative w-full h-full rounded-[2rem] overflow-hidden bg-app flex flex-col">
+
+          <!-- status bar -->
+          <div class="h-9 flex items-center justify-between px-6 text-[11px] font-semibold text-ink shrink-0 bg-panel">
+            <span id="clock">9:41</span>
+            <div class="w-24 h-5 bg-navy rounded-full absolute left-1/2 -translate-x-1/2 top-1"></div>
+            <span>&#128246; &#128225; &#128267;</span>
+          </div>
+
+          <!-- app top bar -->
+          <div class="shrink-0 bg-panel border-b border-line px-4 py-3 flex items-center gap-3">
+            <button id="backBtn" data-action="back" aria-label="Go back" class="hidden w-8 h-8 rounded-full items-center justify-center bg-app text-ink">&#8592;</button>
+            <div class="flex-1 min-w-0">
+              <p id="topTitle" class="font-display font-bold text-[15px] text-ink truncate">Discover</p>
+              <p id="topSub" class="text-[11px] text-sub truncate">Chandigarh, Sector 17</p>
+            </div>
+            <button data-action="open-settings" aria-label="Accessibility settings" class="w-9 h-9 rounded-full bg-app flex items-center justify-center text-ink text-base focusable">&#9881;</button>
+          </div>
+
+          <!-- SCREEN CONTENT -->
+          <main id="screen" class="flex-1 overflow-y-auto scrollbar-none relative"></main>
+
+          <!-- SOS floating button -->
+          <button data-action="open-sos" aria-label="Emergency SOS" class="absolute right-4 bottom-24 w-14 h-14 rounded-full bg-amber text-white font-display font-bold text-sm shadow-lg flex items-center justify-center pulse-dot focusable z-30">SOS</button>
+
+          <!-- bottom tab bar -->
+          <nav class="shrink-0 bg-panel border-t border-line grid grid-cols-5" aria-label="Primary">
+            <button data-action="tab" data-tab="home" class="tab-btn flex flex-col items-center justify-center gap-0.5 py-2.5 focusable">
+              <span class="text-lg">&#127968;</span><span class="text-[10px] font-semibold">Home</span>
+            </button>
+            <button data-action="tab" data-tab="map" class="tab-btn flex flex-col items-center justify-center gap-0.5 py-2.5 focusable">
+              <span class="text-lg">&#128506;</span><span class="text-[10px] font-semibold">Routes</span>
+            </button>
+            <button data-action="tab" data-tab="report" class="tab-btn flex flex-col items-center justify-center gap-0.5 py-2.5 focusable">
+              <span class="text-lg">&#128712;</span><span class="text-[10px] font-semibold">Report</span>
+            </button>
+            <button data-action="tab" data-tab="community" class="tab-btn flex flex-col items-center justify-center gap-0.5 py-2.5 focusable">
+              <span class="text-lg">&#129309;</span><span class="text-[10px] font-semibold">Community</span>
+            </button>
+            <button data-action="tab" data-tab="profile" class="tab-btn flex flex-col items-center justify-center gap-0.5 py-2.5 focusable">
+              <span class="text-lg">&#128100;</span><span class="text-[10px] font-semibold">Profile</span>
+            </button>
+          </nav>
+
+          <!-- overlays root -->
+          <div id="overlays"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- SIDE INFO PANEL (desktop only) -->
+    <aside class="hidden md:block bg-white/95 backdrop-blur rounded-2xl border border-line p-6 anim-in">
+      <p class="font-display font-bold text-navy text-sm uppercase tracking-wide mb-1">What to try</p>
+      <h2 class="font-display font-bold text-2xl text-ink mb-3">Five things this prototype actually does</h2>
+      <ol class="space-y-3 text-sm text-ink">
+        <li><b>1. Search &amp; filter — Home.</b> Type in the search bar or tap a need chip (Wheelchair, Low Vision...) to see the list re-rank.</li>
+        <li><b>2. Step-free navigation — Routes.</b> Open a place &rarr; "Get step-free route" &rarr; Start Navigation, and watch the route ribbon react to a live barrier report.</li>
+        <li><b>3. Report a barrier — Report.</b> Submit a real report; it lands in Community as "Pending".</li>
+        <li><b>4. Community verification.</b> Upvote a pending report 3 times and watch it flip to "Verified" — and update the place's badge on Home.</li>
+        <li><b>5. Accessibility settings.</b> Tap the gear icon: adjust text size or flip on High Contrast mode, live.</li>
+      </ol>
+      <div class="mt-5 pt-5 border-t border-line">
+        <p class="font-display font-bold text-navy text-sm uppercase tracking-wide mb-1">Stack (matches Stage 1 deck)</p>
+        <div class="flex flex-wrap gap-1.5 mt-2">
+          <span class="text-[11px] font-semibold bg-app px-2.5 py-1 rounded-full border border-line">React Native (this demo: HTML/Tailwind/JS)</span>
+          <span class="text-[11px] font-semibold bg-app px-2.5 py-1 rounded-full border border-line">Node.js + Express API</span>
+          <span class="text-[11px] font-semibold bg-app px-2.5 py-1 rounded-full border border-line">PostgreSQL + PostGIS</span>
+          <span class="text-[11px] font-semibold bg-app px-2.5 py-1 rounded-full border border-line">Firebase Realtime</span>
+          <span class="text-[11px] font-semibold bg-app px-2.5 py-1 rounded-full border border-line">Google Maps / OSM</span>
+          <span class="text-[11px] font-semibold bg-app px-2.5 py-1 rounded-full border border-line">TensorFlow / OpenCV</span>
+        </div>
+      </div>
+    </aside>
+  </div>
+
+  <p class="text-white/50 text-[11px] mt-6">All data on this screen is mock/local (stored in memory for this session) — nothing is sent to a server.</p>
+</div>
+
+<!-- toast -->
+<div id="toast" class="fixed left-1/2 -translate-x-1/2 bottom-8 z-50 hidden"></div>
+
+<script>
+/* =========================================================
+   DATA
+========================================================= */
+const CATEGORIES = ["All","Transit","Shopping","Food","Park","Education","Health"];
+const NEEDS = [
+  {id:'wheelchair', label:'Wheelchair', icon:'&#9855;'},
+  {id:'visual', label:'Low Vision', icon:'&#128065;'},
+  {id:'hearing', label:'Deaf / HoH', icon:'&#128066;'},
+  {id:'elderly', label:'Elderly', icon:'&#129466;'},
+];
+
+let PLACES = [
+  {id:1, name:"Sector 17 Metro Station", cat:"Transit", dist:"0.4 km", rating:4.6, verifiedBy:128, icon:'&#128647;', features:{ramp:true, restroom:true, elevator:true, parking:false, audio:true}},
+  {id:2, name:"Elante Mall", cat:"Shopping", dist:"1.1 km", rating:4.8, verifiedBy:212, icon:'&#128717;', features:{ramp:true, restroom:true, elevator:true, parking:true, audio:false}},
+  {id:3, name:"Central Public Library", cat:"Education", dist:"0.8 km", rating:4.2, verifiedBy:64, icon:'&#128218;', features:{ramp:true, restroom:false, elevator:true, parking:false, audio:false}},
+  {id:4, name:"Green Leaf Café", cat:"Food", dist:"0.3 km", rating:4.0, verifiedBy:31, icon:'&#9749;', features:{ramp:false, restroom:false, elevator:false, parking:false, audio:false}},
+  {id:5, name:"Rock Garden Park", cat:"Park", dist:"1.6 km", rating:4.9, verifiedBy:340, icon:'&#127795;', features:{ramp:true, restroom:true, elevator:false, parking:true, audio:true}},
+  {id:6, name:"Sector 32 Civil Hospital", cat:"Health", dist:"2.0 km", rating:4.5, verifiedBy:98, icon:'&#127973;', features:{ramp:true, restroom:true, elevator:true, parking:true, audio:true}},
+];
+
+let REPORTS = [
+  {id:1, placeId:1, place:"Sector 17 Metro Station", category:"Broken Ramp", desc:"Ramp near Gate 3 is blocked by a construction barrier — had to backtrack.", reporter:"Aisha K.", time:"2 hrs ago", upvotes:2, status:"pending"},
+  {id:2, placeId:2, place:"Elante Mall", category:"Missing Signage", desc:"No accessible-restroom signage on the 2nd floor food court.", reporter:"Rahul M.", time:"5 hrs ago", upvotes:4, status:"verified"},
+  {id:3, placeId:3, place:"Central Public Library", category:"No Restroom Access", desc:"Accessible restroom was locked, no staff nearby with a key.", reporter:"Priya S.", time:"1 day ago", upvotes:1, status:"pending"},
+];
+let nextReportId = 4;
+
+const LEADERBOARD = [
+  {name:"Priya S.", points:1240, badge:"Gold Verifier"},
+  {name:"Rahul M.", points:980, badge:"Silver Verifier"},
+  {name:"Aisha K.", points:760, badge:"Silver Verifier"},
+  {name:"You", points:120, badge:"New Contributor"},
+];
+
+const ROUTE_STEPS = [
+  {instr:"Head north on Madhya Marg", dist:"150 m", type:"walk"},
+  {instr:"Use the accessible ramp at Gate 2", dist:"40 m", type:"ramp"},
+  {instr:"Take the elevator to platform level", dist:"—", type:"elevator"},
+  {instr:"Barrier reported ahead near Gate 3 — rerouting automatically", dist:"", type:"alert"},
+  {instr:"Continue via the Gate 1 accessible entrance", dist:"80 m", type:"walk"},
+  {instr:"You have arrived", dist:"", type:"arrive"},
+];
+
+const STEP_STYLE = {
+  walk:   {bg:'background:var(--navy)', ic:'&#128694;'},
+  ramp:   {bg:'background:var(--teal)', ic:'&#9855;'},
+  elevator:{bg:'background:var(--navy-2)', ic:'&#11014;'},
+  alert:  {bg:'background:var(--amber)', ic:'&#9888;'},
+  arrive: {bg:'background:var(--teal-2)', ic:'&#127937;'},
+};
+
+/* =========================================================
+   STATE
+========================================================= */
+const state = {
+  tab: 'home',
+  search: '',
+  activeCategory: 'All',
+  activeNeed: null,
+  selectedPlaceId: null,
+  reportDraft: {placeId:'', category:'', desc:''},
+  nav: {active:false, placeId:null, stepIndex:0},
+  hc: false,
+  textScale: 1,
+  overlay: null, // 'settings' | 'sos' | 'reportSuccess'
+};
+
+/* =========================================================
+   HELPERS
+========================================================= */
+function el(html){ const t=document.createElement('template'); t.innerHTML=html.trim(); return t.content.firstElementChild; }
+function esc(s){ return String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
+function featureBadges(f, size){
+  const items = [
+    f.ramp ? {ic:'&#9855;', label:'Ramp'} : null,
+    f.restroom ? {ic:'&#128702;', label:'Restroom'} : null,
+    f.elevator ? {ic:'&#11014;', label:'Lift'} : null,
+    f.parking ? {ic:'&#128663;', label:'Parking'} : null,
+    f.audio ? {ic:'&#128266;', label:'Audio cues'} : null,
+  ].filter(Boolean);
+  const cls = size==='sm' ? 'text-[10px] px-1.5 py-0.5' : 'text-[11px] px-2 py-1';
+  return items.map(i => `<span class="${cls} rounded-full bg-teal/10 text-teal font-semibold inline-flex items-center gap-1 border border-teal/20">${i.ic} ${i.label}</span>`).join('');
+}
+function toast(msg, tone){
+  const box = document.getElementById('toast');
+  const color = tone==='amber' ? 'bg-amber' : 'bg-teal';
+  box.innerHTML = `<div class="anim-pop ${color} text-white font-semibold text-sm px-4 py-3 rounded-xl shadow-xl max-w-xs text-center">${msg}</div>`;
+  box.classList.remove('hidden');
+  clearTimeout(box._t);
+  box._t = setTimeout(()=>{ box.classList.add('hidden'); }, 2400);
+}
+function place(id){ return PLACES.find(p=>p.id===id); }
+
+/* =========================================================
+   RENDER: SCREENS
+========================================================= */
+function renderHome(){
+  const need = state.activeNeed;
+  let list = PLACES.filter(p =>
+    (state.activeCategory==='All' || p.cat===state.activeCategory) &&
+    p.name.toLowerCase().includes(state.search.toLowerCase())
+  );
+  if(need){
+    const key = need==='wheelchair' ? 'ramp' : need==='visual' ? 'audio' : need==='hearing' ? 'audio' : 'ramp';
+    list = [...list].sort((a,b) => (b.features[key]===true) - (a.features[key]===true));
+  }
+
+  return `
+  <div class="px-4 pt-4 pb-28">
+    <label class="sr-only" for="searchInput">Search places</label>
+    <div class="flex items-center gap-2 bg-panel border border-line rounded-2xl px-3 py-2.5 mb-3">
+      <span class="text-sub">&#128269;</span>
+      <input id="searchInput" type="text" placeholder="Where are you going?" value="${esc(state.search)}"
+        class="flex-1 bg-transparent text-sm outline-none placeholder:text-sub" />
+    </div>
+
+    <div class="flex gap-2 overflow-x-auto scrollbar-none pb-1 mb-3">
+      ${CATEGORIES.map(c => `
+        <button data-action="filter-cat" data-cat="${c}" class="shrink-0 text-xs font-semibold px-3 py-1.5 rounded-full border ${state.activeCategory===c ? 'bg-navy text-white border-navy' : 'bg-panel text-ink border-line'} focusable">${c}</button>
+      `).join('')}
+    </div>
+
+    <p class="text-[11px] font-bold text-sub uppercase tracking-wide mb-1.5">I need</p>
+    <div class="flex gap-2 overflow-x-auto scrollbar-none pb-1 mb-4">
+      ${NEEDS.map(n => `
+        <button data-action="filter-need" data-need="${n.id}" class="shrink-0 flex items-center gap-1.5 text-xs font-semibold px-3 py-1.5 rounded-full border ${state.activeNeed===n.id ? 'bg-teal text-white border-teal' : 'bg-panel text-ink border-line'} focusable">
+          <span>${n.icon}</span>${n.label}
+        </button>
+      `).join('')}
+    </div>
+
+    <div class="flex items-center justify-between mb-2">
+      <p class="font-display font-bold text-sm text-ink">Nearby accessible places</p>
+      <span class="text-[11px] text-sub">${list.length} result${list.length===1?'':'s'}</span>
+    </div>
+
+    <div class="space-y-3">
+      ${list.length ? list.map(p => `
+        <button data-action="open-place" data-id="${p.id}" class="w-full text-left bg-panel border border-line rounded-2xl p-3.5 flex gap-3 anim-in focusable">
+          <div class="w-12 h-12 rounded-xl bg-app flex items-center justify-center text-xl shrink-0">${p.icon}</div>
+          <div class="flex-1 min-w-0">
+            <div class="flex items-center justify-between gap-2">
+              <p class="font-semibold text-sm text-ink truncate">${esc(p.name)}</p>
+              <span class="text-[11px] text-sub shrink-0">${p.dist}</span>
+            </div>
+            <p class="text-[11px] text-sub mb-1.5">${p.cat} &middot; &#9733; ${p.rating} &middot; ${p.verifiedBy} verified</p>
+            <div class="flex flex-wrap gap-1">${featureBadges(p.features,'sm')}</div>
+          </div>
+        </button>
+      `).join('') : `<p class="text-sm text-sub text-center py-10">No places match — try another filter.</p>`}
+    </div>
+  </div>`;
+}
+
+function renderMap(){
+  if(state.nav.active){
+    const p = place(state.nav.placeId);
+    const idx = state.nav.stepIndex;
+    const step = ROUTE_STEPS[idx];
+    const done = idx >= ROUTE_STEPS.length - 1;
+    return `
+    <div class="px-4 pt-4 pb-28">
+      <div class="bg-navy rounded-2xl p-4 text-white mb-4">
+        <p class="text-[11px] uppercase tracking-wide text-white/70 font-bold mb-1">Navigating to</p>
+        <p class="font-display font-bold text-lg leading-tight">${esc(p.name)}</p>
+        <p class="text-xs text-white/70 mt-1">Step-free route &middot; 1.2 km &middot; ~18 min</p>
+      </div>
+
+      <p class="text-[11px] font-bold text-sub uppercase tracking-wide mb-1.5">Route ribbon</p>
+      <div class="flex gap-1 mb-5">
+        ${ROUTE_STEPS.map((s,i) => `<div class="ribbon-seg flex-1" style="background:${i < idx ? 'var(--teal)' : i===idx ? (s.type==='alert' ? 'var(--amber)' : 'var(--navy)') : 'var(--line)'}"></div>`).join('')}
+      </div>
+
+      <div class="flex items-start gap-3 bg-panel border border-line rounded-2xl p-4 mb-4 ${step.type==='alert' ? 'anim-pop' : ''}">
+        <div class="step-icon text-white text-base" style="${STEP_STYLE[step.type].bg}">${STEP_STYLE[step.type].ic}</div>
+        <div class="flex-1">
+          <p class="font-semibold text-sm text-ink">${esc(step.instr)}</p>
+          ${step.dist ? `<p class="text-[11px] text-sub mt-0.5">${step.dist}</p>` : ''}
+          ${step.type==='alert' ? `<p class="text-[11px] text-amber font-semibold mt-1">Rerouted using live community reports</p>` : ''}
+        </div>
+      </div>
+
+      <div class="space-y-2 mb-5">
+        ${ROUTE_STEPS.map((s,i) => `
+          <div class="flex items-center gap-2.5 ${i>idx ? 'opacity-40' : ''}">
+            <div class="w-6 h-6 rounded-full flex items-center justify-center text-[10px] font-bold text-white shrink-0" style="${i<=idx ? 'background:var(--teal)' : 'background:var(--line)'}">${i<idx ? '&#10003;' : i+1}</div>
+            <p class="text-xs ${i===idx ? 'font-semibold text-ink' : 'text-sub'}">${esc(s.instr)}</p>
+          </div>
+        `).join('')}
+      </div>
+
+      ${done ? `
+        <button data-action="end-nav" class="w-full bg-teal text-white font-semibold text-sm py-3 rounded-xl focusable">You've arrived — End navigation</button>
+      ` : `
+        <button data-action="next-step" class="w-full bg-navy text-white font-semibold text-sm py-3 rounded-xl focusable">Next step</button>
+        <button data-action="end-nav" class="w-full text-sub text-xs font-semibold py-2.5 mt-1 focusable">Cancel navigation</button>
+      `}
+    </div>`;
+  }
+
+  return `
+  <div class="px-4 pt-4 pb-28">
+    <div class="rounded-2xl overflow-hidden border border-line mb-4" style="height:220px; background:
+      linear-gradient(0deg, rgba(21,35,67,.06) 1px, transparent 1px) 0 0/100% 22px,
+      linear-gradient(90deg, rgba(21,35,67,.06) 1px, transparent 1px) 0 0/22px 100%,
+      #DCE7EA;">
+      <div class="w-full h-full relative">
+        <div class="absolute left-8 top-10 w-3 h-3 rounded-full bg-teal ring-4 ring-teal/20"></div>
+        <div class="absolute right-10 bottom-10 w-3 h-3 rounded-full bg-amber ring-4 ring-amber/20"></div>
+        <svg class="absolute inset-0 w-full h-full"><path d="M 40 50 C 120 40, 160 140, 260 170" stroke="#152343" stroke-width="3" stroke-dasharray="2 8" stroke-linecap="round" fill="none"/></svg>
+        <span class="absolute top-3 left-3 text-[10px] font-semibold bg-white/90 px-2 py-1 rounded-full text-ink">Map preview (mock)</span>
+      </div>
+    </div>
+    <p class="font-display font-bold text-sm text-ink mb-2">Pick a destination to get a step-free route</p>
+    <div class="space-y-2.5">
+      ${PLACES.map(p => `
+        <button data-action="start-nav" data-id="${p.id}" class="w-full text-left bg-panel border border-line rounded-2xl p-3 flex items-center gap-3 focusable">
+          <div class="w-10 h-10 rounded-xl bg-app flex items-center justify-center text-lg shrink-0">${p.icon}</div>
+          <div class="flex-1 min-w-0">
+            <p class="font-semibold text-sm text-ink truncate">${esc(p.name)}</p>
+            <p class="text-[11px] text-sub">${p.dist} &middot; step-free route available</p>
+          </div>
+          <span class="text-navy text-lg">&#8594;</span>
+        </button>
+      `).join('')}
+    </div>
+  </div>`;
+}
+
+function renderReport(){
+  const d = state.reportDraft;
+  const cats = ["Broken Ramp","Blocked Path","No Restroom Access","Missing Signage","Broken Elevator","Other"];
+  return `
+  <div class="px-4 pt-4 pb-28">
+    <p class="font-display font-bold text-sm text-ink mb-1">Report a barrier</p>
+    <p class="text-xs text-sub mb-4">Your report is geo-tagged and reviewed by the community before it changes the map.</p>
+
+    <label class="text-[11px] font-bold text-sub uppercase tracking-wide mb-1.5 block">Place</label>
+    <select id="reportPlace" class="w-full bg-panel border border-line rounded-xl px-3 py-2.5 text-sm mb-4 focusable">
+      <option value="">Select a place…</option>
+      ${PLACES.map(p => `<option value="${p.id}" ${String(d.placeId)===String(p.id) ? 'selected':''}>${esc(p.name)}</option>`).join('')}
+    </select>
+
+    <label class="text-[11px] font-bold text-sub uppercase tracking-wide mb-1.5 block">What's wrong?</label>
+    <div class="grid grid-cols-2 gap-2 mb-4">
+      ${cats.map(c => `
+        <button data-action="pick-cat" data-cat="${c}" class="text-xs font-semibold text-left px-3 py-2.5 rounded-xl border ${d.category===c ? 'bg-amber text-white border-amber' : 'bg-panel text-ink border-line'} focusable">${c}</button>
+      `).join('')}
+    </div>
+
+    <label class="text-[11px] font-bold text-sub uppercase tracking-wide mb-1.5 block" for="reportDesc">Details</label>
+    <textarea id="reportDesc" rows="3" placeholder="What did you find? e.g. 'Ramp blocked by construction barrier.'" class="w-full bg-panel border border-line rounded-xl px-3 py-2.5 text-sm mb-4 focusable">${esc(d.desc)}</textarea>
+
+    <label class="text-[11px] font-bold text-sub uppercase tracking-wide mb-1.5 block">Photo evidence</label>
+    <label class="flex items-center justify-center gap-2 border border-dashed border-line rounded-xl py-6 mb-5 text-sub text-xs font-semibold cursor-pointer bg-panel focusable">
+      <span id="photoLabel">&#128247; Tap to add a photo</span>
+      <input id="photoInput" type="file" accept="image/*" class="hidden" />
+    </label>
+
+    <button data-action="submit-report" class="w-full bg-amber text-white font-semibold text-sm py-3 rounded-xl focusable">Submit report</button>
+  </div>`;
+}
+
+function renderCommunity(){
+  return `
+  <div class="px-4 pt-4 pb-28">
+    <p class="font-display font-bold text-sm text-ink mb-3">Top verifiers this month</p>
+    <div class="bg-panel border border-line rounded-2xl divide-y divide-line mb-5">
+      ${LEADERBOARD.map((u,i) => `
+        <div class="flex items-center gap-3 px-3.5 py-2.5 ${u.name==='You' ? 'bg-teal/5' : ''}">
+          <span class="font-display font-bold text-sm w-5 text-sub">${i+1}</span>
+          <div class="w-8 h-8 rounded-full bg-navy text-white text-xs font-bold flex items-center justify-center">${u.name[0]}</div>
+          <div class="flex-1 min-w-0">
+            <p class="text-sm font-semibold text-ink truncate">${esc(u.name)}</p>
+            <p class="text-[11px] text-sub">${u.badge}</p>
+          </div>
+          <p class="text-sm font-bold text-navy">${u.points}</p>
+        </div>
+      `).join('')}
+    </div>
+
+    <p class="font-display font-bold text-sm text-ink mb-3">Recent reports</p>
+    <div class="space-y-3">
+      ${REPORTS.slice().reverse().map(r => `
+        <div class="bg-panel border border-line rounded-2xl p-3.5 anim-in">
+          <div class="flex items-start justify-between gap-2 mb-1">
+            <p class="text-sm font-semibold text-ink">${esc(r.place)}</p>
+            ${r.status==='verified'
+              ? `<span class="stamp shrink-0 text-[10px] font-bold text-white bg-teal px-2 py-1 rounded-full flex items-center gap-1">&#10003; Verified</span>`
+              : `<span class="shrink-0 text-[10px] font-bold text-amber-2 bg-amber/15 px-2 py-1 rounded-full">Pending &middot; ${r.upvotes}/3</span>`}
+          </div>
+          <p class="text-[11px] font-semibold text-navy mb-1">${esc(r.category)}</p>
+          <p class="text-xs text-sub mb-2.5">${esc(r.desc)}</p>
+          <div class="flex items-center justify-between">
+            <p class="text-[11px] text-sub">${esc(r.reporter)} &middot; ${r.time}</p>
+            ${r.status!=='verified' ? `
+              <button data-action="upvote" data-id="${r.id}" class="text-[11px] font-bold text-teal border border-teal/40 px-2.5 py-1 rounded-full focusable">&#128077; Confirm I saw this too</button>
+            ` : `<span class="text-[11px] text-teal font-semibold">Map updated</span>`}
+          </div>
+        </div>
+      `).join('')}
+    </div>
+  </div>`;
+}
+
+function renderProfile(){
+  return `
+  <div class="px-4 pt-4 pb-28">
+    <div class="bg-navy rounded-2xl p-4 text-white flex items-center gap-3 mb-5">
+      <div class="w-12 h-12 rounded-full bg-white/15 flex items-center justify-center text-lg font-bold">Y</div>
+      <div>
+        <p class="font-display font-bold">You</p>
+        <p class="text-xs text-white/70">120 points &middot; New Contributor</p>
+      </div>
+    </div>
+
+    <p class="font-display font-bold text-sm text-ink mb-2">My accessibility profile</p>
+    <div class="grid grid-cols-2 gap-2 mb-5">
+      ${NEEDS.map(n => `
+        <button data-action="filter-need" data-need="${n.id}" class="flex items-center gap-2 text-xs font-semibold px-3 py-2.5 rounded-xl border ${state.activeNeed===n.id ? 'bg-teal text-white border-teal' : 'bg-panel text-ink border-line'} focusable">
+          <span>${n.icon}</span>${n.label}
+        </button>
+      `).join('')}
+    </div>
+    <p class="text-[11px] text-sub mb-5">This preference re-ranks results on Home so the most relevant access features show first.</p>
+
+    <p class="font-display font-bold text-sm text-ink mb-2">Accessibility display settings</p>
+    <button data-action="open-settings" class="w-full flex items-center justify-between bg-panel border border-line rounded-2xl px-4 py-3 mb-5 focusable">
+      <span class="text-sm font-semibold text-ink">Text size &amp; contrast</span>
+      <span class="text-sub">&#8594;</span>
+    </button>
+
+    <p class="font-display font-bold text-sm text-ink mb-2">About this build</p>
+    <div class="bg-panel border border-line rounded-2xl p-3.5 text-xs text-sub leading-relaxed">
+      Team AccessMitra &middot; PS-16, Accessibility &amp; Inclusion. This is a front-end prototype for judging; the production app connects these same screens to a Node.js/PostgreSQL+PostGIS backend with a CV-based verification service.
+    </div>
+  </div>`;
+}
+
+/* =========================================================
+   RENDER: OVERLAYS
+========================================================= */
+function renderOverlays(){
+  const root = document.getElementById('overlays');
+  root.innerHTML = '';
+  if(state.selectedPlaceId){
+    const p = place(state.selectedPlaceId);
+    root.appendChild(el(`
+      <div class="absolute inset-0 z-40 flex flex-col justify-end">
+        <button data-action="close-place" aria-label="Close" class="absolute inset-0 bg-black/40"></button>
+        <div class="relative anim-sheet bg-panel rounded-t-3xl p-5 max-h-[85%] overflow-y-auto scrollbar-none">
+          <div class="w-10 h-1.5 bg-line rounded-full mx-auto mb-4"></div>
+          <div class="flex items-start gap-3 mb-3">
+            <div class="w-14 h-14 rounded-2xl bg-app flex items-center justify-center text-2xl shrink-0">${p.icon}</div>
+            <div class="flex-1">
+              <p class="font-display font-bold text-lg text-ink leading-tight">${esc(p.name)}</p>
+              <p class="text-xs text-sub mt-0.5">${p.cat} &middot; ${p.dist} &middot; &#9733; ${p.rating}</p>
+            </div>
+          </div>
+          <div class="flex items-center gap-1.5 text-xs text-teal font-semibold mb-4">
+            <span class="stamp">&#10003;</span> Verified accessible by ${p.verifiedBy} community members
+          </div>
+          <p class="text-[11px] font-bold text-sub uppercase tracking-wide mb-1.5">Accessibility features</p>
+          <div class="flex flex-wrap gap-1.5 mb-5">${featureBadges(p.features)}</div>
+          <button data-action="start-nav" data-id="${p.id}" class="w-full bg-navy text-white font-semibold text-sm py-3 rounded-xl mb-2 focusable">Get step-free route</button>
+          <button data-action="prefill-report" data-id="${p.id}" class="w-full text-amber-2 font-semibold text-sm py-2.5 focusable">Report a barrier here</button>
+        </div>
+      </div>
+    `));
+  }
+  if(state.overlay==='settings'){
+    root.appendChild(el(`
+      <div class="absolute inset-0 z-40 flex flex-col justify-end">
+        <button data-action="close-overlay" aria-label="Close" class="absolute inset-0 bg-black/40"></button>
+        <div class="relative anim-sheet bg-panel rounded-t-3xl p-5">
+          <div class="w-10 h-1.5 bg-line rounded-full mx-auto mb-4"></div>
+          <p class="font-display font-bold text-base text-ink mb-4">Accessibility settings</p>
+
+          <p class="text-xs font-semibold text-ink mb-2">Text size</p>
+          <div class="flex gap-2 mb-5">
+            ${[1,1.15,1.3].map(v => `
+              <button data-action="text-scale" data-scale="${v}" class="flex-1 py-2.5 rounded-xl border text-sm font-semibold ${state.textScale===v ? 'bg-navy text-white border-navy' : 'bg-app text-ink border-line'} focusable">${v===1?'A':v===1.15?'A+':'A++'}</button>
+            `).join('')}
+          </div>
+
+          <div class="flex items-center justify-between">
+            <div>
+              <p class="text-sm font-semibold text-ink">High contrast mode</p>
+              <p class="text-[11px] text-sub">Maximum contrast for low vision</p>
+            </div>
+            <button data-action="toggle-hc" role="switch" aria-checked="${state.hc}" class="w-12 h-7 rounded-full relative transition-colors focusable ${state.hc ? 'bg-teal' : 'bg-line'}">
+              <span class="absolute top-0.5 ${state.hc ? 'left-6' : 'left-0.5'} w-6 h-6 bg-white rounded-full shadow transition-all"></span>
+            </button>
+          </div>
+        </div>
+      </div>
+    `));
+  }
+  if(state.overlay==='sos'){
+    root.appendChild(el(`
+      <div class="absolute inset-0 z-40 flex flex-col justify-end">
+        <button data-action="close-overlay" aria-label="Close" class="absolute inset-0 bg-black/50"></button>
+        <div class="relative anim-sheet bg-panel rounded-t-3xl p-5">
+          <div class="w-10 h-1.5 bg-line rounded-full mx-auto mb-4"></div>
+          <p class="font-display font-bold text-lg text-amber-2 mb-1">Emergency assistance</p>
+          <p class="text-xs text-sub mb-5">Your location will be shared with whoever you alert.</p>
+          <button data-action="sos-call" class="w-full bg-amber text-white font-semibold text-sm py-3.5 rounded-xl mb-2.5 focusable">&#9742; Call emergency services</button>
+          <button data-action="sos-volunteer" class="w-full bg-navy text-white font-semibold text-sm py-3.5 rounded-xl mb-2.5 focusable">&#128101; Alert nearby verified volunteers</button>
+          <button data-action="close-overlay" class="w-full text-sub font-semibold text-sm py-2 focusable">Cancel</button>
+        </div>
+      </div>
+    `));
+  }
+}
+
+/* =========================================================
+   MASTER RENDER
+========================================================= */
+const TITLES = {
+  home:{t:'Discover', s:'Chandigarh, Sector 17'},
+  map:{t:'Routes', s:'Step-free navigation'},
+  report:{t:'Report', s:'Help keep the map accurate'},
+  community:{t:'Community', s:'Verified together'},
+  profile:{t:'Profile', s:'Your access preferences'},
+};
+function render(){
+  document.documentElement.classList.toggle('hc', state.hc);
+  document.getElementById('phone').style.fontSize = state.textScale + 'em';
+
+  document.getElementById('topTitle').textContent = TITLES[state.tab].t;
+  document.getElementById('topSub').textContent = TITLES[state.tab].s;
+  document.getElementById('backBtn').classList.toggle('hidden', !(state.tab==='map' && state.nav.active));
+
+  document.querySelectorAll('.tab-btn').forEach(b=>{
+    const active = b.dataset.tab === state.tab;
+    b.classList.toggle('text-navy', active);
+    b.classList.toggle('text-sub', !active);
+    b.style.opacity = active ? '1' : '.75';
+  });
+
+  const map = {home:renderHome, map:renderMap, report:renderReport, community:renderCommunity, profile:renderProfile};
+  document.getElementById('screen').innerHTML = map[state.tab]();
+  renderOverlays();
+}
+
+/* =========================================================
+   ACTIONS
+========================================================= */
+function setTab(tab){ state.tab = tab; state.selectedPlaceId=null; render(); }
+
+document.addEventListener('click', (e) => {
+  const b = e.target.closest('[data-action]');
+  if(!b) return;
+  const a = b.dataset.action;
+
+  if(a==='tab') setTab(b.dataset.tab);
+  else if(a==='back'){ state.nav.active=false; render(); }
+  else if(a==='filter-cat'){ state.activeCategory = b.dataset.cat; render(); }
+  else if(a==='filter-need'){ state.activeNeed = state.activeNeed===b.dataset.need ? null : b.dataset.need; render(); }
+  else if(a==='open-place'){ state.selectedPlaceId = Number(b.dataset.id); renderOverlays(); }
+  else if(a==='close-place'){ state.selectedPlaceId = null; renderOverlays(); }
+  else if(a==='start-nav'){
+    state.selectedPlaceId = null;
+    state.tab='map'; state.nav = {active:true, placeId:Number(b.dataset.id), stepIndex:0};
+    render();
+  }
+  else if(a==='next-step'){ state.nav.stepIndex = Math.min(state.nav.stepIndex+1, ROUTE_STEPS.length-1); render(); }
+  else if(a==='end-nav'){ toast('Navigation ended'); state.nav = {active:false, placeId:null, stepIndex:0}; render(); }
+  else if(a==='prefill-report'){
+    state.reportDraft.placeId = b.dataset.id;
+    state.selectedPlaceId = null;
+    state.tab='report'; render();
+  }
+  else if(a==='pick-cat'){ state.reportDraft.category = b.dataset.cat; render(); }
+  else if(a==='submit-report'){ submitReport(); }
+  else if(a==='upvote'){ upvote(Number(b.dataset.id)); }
+  else if(a==='open-settings'){ state.overlay='settings'; renderOverlays(); }
+  else if(a==='open-sos'){ state.overlay='sos'; renderOverlays(); }
+  else if(a==='close-overlay'){ state.overlay=null; renderOverlays(); }
+  else if(a==='toggle-hc'){ state.hc = !state.hc; render(); renderOverlays(); }
+  else if(a==='text-scale'){ state.textScale = Number(b.dataset.scale); render(); renderOverlays(); }
+  else if(a==='sos-call'){ state.overlay=null; renderOverlays(); toast('Simulated: connecting to emergency services…', 'amber'); }
+  else if(a==='sos-volunteer'){ state.overlay=null; renderOverlays(); toast('Simulated: 3 nearby volunteers alerted'); }
+});
+
+document.addEventListener('input', (e) => {
+  if(e.target.id==='searchInput'){ state.search = e.target.value; render(); }
+  if(e.target.id==='reportDesc'){ state.reportDraft.desc = e.target.value; }
+  if(e.target.id==='reportPlace'){ state.reportDraft.placeId = e.target.value; }
+  if(e.target.id==='photoInput'){
+    const f = e.target.files[0];
+    const lbl = document.getElementById('photoLabel');
+    if(f && lbl) lbl.textContent = '✓ ' + f.name;
+  }
+});
+
+function submitReport(){
+  const d = state.reportDraft;
+  if(!d.placeId || !d.category){
+    toast('Pick a place and a category first', 'amber');
+    return;
+  }
+  const p = place(Number(d.placeId));
+  REPORTS.push({
+    id: nextReportId++, placeId: p.id, place: p.name,
+    category: d.category, desc: d.desc || 'No additional details provided.',
+    reporter: 'You', time: 'just now', upvotes: 0, status: 'pending'
+  });
+  state.reportDraft = {placeId:'', category:'', desc:''};
+  toast('Report submitted — thank you! It now needs 3 community confirmations.');
+  state.tab = 'community';
+  render();
+}
+
+function upvote(id){
+  const r = REPORTS.find(x=>x.id===id);
+  if(!r || r.status==='verified') return;
+  r.upvotes++;
+  if(r.upvotes >= 3){
+    r.status = 'verified';
+    const p = place(r.placeId);
+    if(p && r.category==='Broken Ramp') p.features.ramp = false;
+    if(p && r.category==='Broken Elevator') p.features.elevator = false;
+    if(p && r.category==='No Restroom Access') p.features.restroom = false;
+    toast('Verified by the community — the map has been updated live.');
+  } else {
+    toast('Thanks for confirming!');
+  }
+  render();
+}
+
+/* =========================================================
+   CLOCK + INIT
+========================================================= */
+function tickClock(){
+  const d = new Date();
+  document.getElementById('clock').textContent = d.toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'});
+}
+tickClock(); setInterval(tickClock, 30000);
+
+render();
+</script>
+</body>
+</html>
